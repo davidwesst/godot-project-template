@@ -4,7 +4,7 @@ on:
     branches: [main]
     types: [opened, synchronize, reopened]
   push:
-    branches: [ft/*, hf/*]
+    branches: [main, ft/*, hf/*]
 
 jobs:
 
@@ -36,26 +36,26 @@ jobs:
         export-path: build/linux-x11/game.x86_64
     - name: Archive Web Export
       uses: actions/upload-artifact@v2
-      if: ${{ success() && github.ref == 'refs/heads/ft/gh-actions' }}
+      if: ${{ success() && github.ref == 'refs/heads/main' }}
       with:
         name: web
         path: build/web
     - name: Archive Windows Export
       uses: actions/upload-artifact@v2
-      if: ${{ success() && github.ref == 'refs/heads/ft/gh-actions' }}
+      if: ${{ success() && github.ref == 'refs/heads/main' }}
       with:
         name: windows-desktop
         path: build/windows-desktop
     - name: Archive Linux/11 Export
       uses: actions/upload-artifact@v2
-      if: ${{ success() && github.ref == 'refs/heads/ft/gh-actions' }}
+      if: ${{ success() && github.ref == 'refs/heads/main' }}
       with:
         name: linux-x11
         path: build/linux-x11
 
   publish-to-itchio:
     name: 'Publish to Itch.io'
-    if: ${{ github.ref == 'refs/heads/ft/gh-actions' }}
+    if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
     needs: [export-game]
     runs-on: ubuntu-latest
     steps:
@@ -72,7 +72,7 @@ jobs:
       uses: davidwesst/butler-publish-itchio-action@master
       env:
         BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
-        CHANNEL: windows
+        CHANNEL: windows_desktop
         ITCH_GAME: testing-sandbox
         ITCH_USER: davidwesst
         PACKAGE: artifacts/windows-desktop
@@ -90,7 +90,7 @@ jobs:
       uses: davidwesst/butler-publish-itchio-action@master
       env:
         BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
-        CHANNEL: linux_x11
+        CHANNEL: web
         ITCH_GAME: testing-sandbox
         ITCH_USER: davidwesst
         PACKAGE: artifacts/web
