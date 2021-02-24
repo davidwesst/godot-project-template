@@ -59,6 +59,7 @@ jobs:
   publish-to-itchio:
     if: ${{ github.ref == 'refs/heads/ft/gh-actions' }}
     needs: [export-game]
+    runs-on: ubuntu-latest
     steps:
     - name: Download Artifacts
       uses: actions/download-artifact@v2
