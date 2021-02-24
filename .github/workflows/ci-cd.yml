@@ -76,7 +76,7 @@ jobs:
         ITCH_GAME: testing-sandbox
         ITCH_USER: davidwesst
         PACKAGE: artifacts/windows-desktop
-        VERSION_FILE: version.txt
+        VERSION_FILE: artifacts/windows-desktop/version.txt
     - name: Publish Linux/X11 Build
       uses: davidwesst/butler-publish-itchio-action@master
       env:
@@ -85,7 +85,7 @@ jobs:
         ITCH_GAME: testing-sandbox
         ITCH_USER: davidwesst
         PACKAGE: artifacts/linux-x11
-        VERSION_FILE: version.txt
+        VERSION_FILE: artifacts/linux-x11/version.txt
     - name: Publish Web Build
       uses: davidwesst/butler-publish-itchio-action@master
       env:
@@ -94,4 +94,4 @@ jobs:
         ITCH_GAME: testing-sandbox
         ITCH_USER: davidwesst
         PACKAGE: artifacts/web
-        VERSION_FILE: version.txt
+        VERSION_FILE: artifacts/web/version.txt
