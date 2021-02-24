@@ -65,9 +65,9 @@ jobs:
         path: artifacts/
     - name: Copy Version Files
       run: |
-        ${GITHUB_SHA::8}.windows-desktop >> artifacts/windows-desktop/version.txt
-        ${GITHUB_SHA::8}.linux-x11 >> artifacts/linux-x11/version.txt
-        ${GITHUB_SHA::8}.web >> artifacts/web/version.txt
+        echo ${GITHUB_SHA::8}.windows-desktop >> artifacts/windows-desktop/version.txt
+        echo ${GITHUB_SHA::8}.linux-x11 >> artifacts/linux-x11/version.txt
+        echo ${GITHUB_SHA::8}.web >> artifacts/web/version.txt
     - name: Publish Windows Build
       uses: davidwesst/butler-publish-itchio-action@master
       env:
