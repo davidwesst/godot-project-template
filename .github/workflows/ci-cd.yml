@@ -18,7 +18,7 @@ jobs:
         lfs: true
     - name: Generate Version File
       run: |
-        echo "alpha.${GITHUB_SHA::8}.web" > version.txt
+        echo "alpha." > version.txt
     - name: Export Web Version
       uses: davidwesst/godot-mono-export@v3.2.3
       with:
@@ -37,15 +37,6 @@ jobs:
         project-path: ./
         export-config: "Linux/X11"
         export-path: build/linux-x11/game.x86_64
-    # - name: Publish Web Build to Sandbox
-    #   uses: davidwesst/butler-publish-itchio-action@master
-    #   env:
-    #     BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
-    #     CHANNEL: web_out-the-door
-    #     ITCH_GAME: testing-sandbox
-    #     ITCH_USER: davidwesst
-    #     PACKAGE: build/web
-    #     VERSION_FILE: version.txt
     - name: Archive Web Export
       uses: actions/upload-artifact@v2
       if: ${{ success() && github.ref == 'refs/heads/main' }}
@@ -56,7 +47,7 @@ jobs:
       uses: actions/upload-artifact@v2
       if: ${{ success() && github.ref == 'refs/heads/main' }}
       with:
-        name: windows
+        name: windows-desktop
         path: build/windows-desktop
     - name: Archive Linux/11 Export
       uses: actions/upload-artifact@v2
@@ -65,68 +56,43 @@ jobs:
         name: linux-x11
         path: build/linux-x11
 
-  # export-windows:
-  #   name: 'Windows Export'
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #   - name: Checkout
-  #     uses: actions/checkout@v2
-  #   - name: Generate Version File
-  #     run: |
-  #       echo "alpha.${GITHUB_SHA::8}.windows" > version.txt
-
-  #   # - name: Publish Windows Build to Sandbox
-  #   #   uses: davidwesst/butler-publish-itchio-action@master
-  #   #   env:
-  #   #     BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
-  #   #     CHANNEL: windows_out-the-door
-  #   #     ITCH_GAME: testing-sandbox
-  #   #     ITCH_USER: davidwesst
-  #   #     PACKAGE: build/windows-desktop
-  #   #     VERSION_FILE: version.txt
-  #   - name: Archive Windows Desktop Export
-  #     uses: actions/upload-artifact@v2
-  #     if: ${{ success() && github.ref == 'refs/heads/main' }}
-  #     with:
-  #       name: windows-desktop
-  #       path: build/windows-desktop
-
-
-    # - name: Generate Version Number
-    #   run: |
-    #     STAGE="alpha"
-    #     SHA=${GITHUB_SHA::8}
-    #     echo "$VERSION-$STAGE.$SHA"
-    #     export PROJECT_VERSION=$(echo "$STAGE.$SHA")
-    #     echo "::set-env name=PROJECT_VERSION::$PROJECT_VERSION"
-    # - name: Create Version File
-    #   run: |
-    #     mkdir -v -p artifacts/
-    #     echo "$PROJECT_VERSION" >> artifacts/version.txt
-    #     echo $(<artifacts/version.txt)
-    # - name: Download Artifacts
-    #   uses: actions/download-artifact@v2
-    #   with:
-    #     path: artifacts/
-    # - name: Copy Version File
-    #   run: |
-    #     cp -v artifacts/version.txt artifacts/windows-desktop
-    #     cp -v artifacts/version.txt artifacts/web
-    # - name: Publish Windows Build
-    #   uses: davidwesst/butler-publish-itchio-action@master
-    #   env:
-    #     BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
-    #     CHANNEL: windows_out-the-door
-    #     ITCH_GAME: testing-sandbox
-    #     ITCH_USER: davidwesst
-    #     PACKAGE: artifacts/windows-desktop
-    #     VERSION_FILE: artifacts/version.txt
-    # - name: Publish Web Build
-    #   uses: davidwesst/butler-publish-itchio-action@master
-    #   env:
-    #     BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
-    #     CHANNEL: web_out-the-door
-    #     ITCH_GAME: testing-sandbox
-    #     ITCH_USER: davidwesst
-    #     PACKAGE: artifacts/web
-    #     VERSION_FILE: artifacts/version.txt  
+  publish-to-itchio:
+    if: ${{ github.ref == 'refs/heads/ft/gh-actions' }}
+    needs: [export-game]
+    steps:
+    - name: Download Artifacts
+      uses: actions/download-artifact@v2
+      with:
+        path: artifacts/
+    - name: Copy Version Files
+      run: |
+        ${GITHUB_SHA::8}.windows-desktop >> artifacts/windows-desktop/version.txt
+        ${GITHUB_SHA::8}.linux-x11 >> artifacts/linux-x11/version.txt
+        ${GITHUB_SHA::8}.web >> artifacts/web/version.txt
+    - name: Publish Windows Build
+      uses: davidwesst/butler-publish-itchio-action@master
+      env:
+        BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
+        CHANNEL: windows
+        ITCH_GAME: testing-sandbox
+        ITCH_USER: davidwesst
+        PACKAGE: artifacts/windows-desktop
+        VERSION_FILE: version.txt
+    - name: Publish Linux/X11 Build
+      uses: davidwesst/butler-publish-itchio-action@master
+      env:
+        BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
+        CHANNEL: linux_x11
+        ITCH_GAME: testing-sandbox
+        ITCH_USER: davidwesst
+        PACKAGE: artifacts/linux-x11
+        VERSION_FILE: version.txt
+    - name: Publish Web Build
+      uses: davidwesst/butler-publish-itchio-action@master
+      env:
+        BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
+        CHANNEL: linux_x11
+        ITCH_GAME: testing-sandbox
+        ITCH_USER: davidwesst
+        PACKAGE: artifacts/web
+        VERSION_FILE: version.txt
